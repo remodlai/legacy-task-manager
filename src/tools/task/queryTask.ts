@@ -2,26 +2,26 @@ import { z } from "zod";
 import { searchTasksWithCommand } from "../../models/taskModel.js";
 import { getQueryTaskPrompt } from "../../prompts/index.js";
 
-// 查詢任務工具
+// Task query tool
 export const queryTaskSchema = z.object({
   query: z
     .string()
     .min(1, {
-      message: "查詢內容不能為空，請提供任務ID或搜尋關鍵字",
+      message: "Query content cannot be empty, please provide a task ID or search keywords",
     })
-    .describe("搜尋查詢文字，可以是任務ID或多個關鍵字（空格分隔）"),
+    .describe("Search query text, can be a task ID or multiple keywords (space separated)"),
   isId: z
     .boolean()
     .optional()
     .default(false)
-    .describe("指定是否為ID查詢模式，默認為否（關鍵字模式）"),
+    .describe("Specify whether this is an ID query mode, defaults to false (keyword mode)"),
   page: z
     .number()
     .int()
     .positive()
     .optional()
     .default(1)
-    .describe("分頁頁碼，默認為第1頁"),
+    .describe("Page number, defaults to page 1"),
   pageSize: z
     .number()
     .int()
@@ -30,7 +30,7 @@ export const queryTaskSchema = z.object({
     .max(20)
     .optional()
     .default(5)
-    .describe("每頁顯示的任務數量，默認為5筆，最大20筆"),
+    .describe("Number of tasks to display per page, defaults to 5, maximum 20"),
 });
 
 export async function queryTask({
@@ -40,10 +40,10 @@ export async function queryTask({
   pageSize = 3,
 }: z.infer<typeof queryTaskSchema>) {
   try {
-    // 使用系統指令搜尋函數
+    // Use system command search function
     const results = await searchTasksWithCommand(query, isId, page, pageSize);
 
-    // 使用prompt生成器獲取最終prompt
+    // Use prompt generator to get final prompt
     const prompt = getQueryTaskPrompt({
       query,
       isId,
@@ -67,7 +67,7 @@ export async function queryTask({
       content: [
         {
           type: "text" as const,
-          text: `## 系統錯誤\n\n查詢任務時發生錯誤: ${
+          text: `## System Error\n\nError occurred while querying tasks: ${
             error instanceof Error ? error.message : String(error)
           }`,
         },

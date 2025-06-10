@@ -1,6 +1,6 @@
 /**
- * getTaskDetail prompt 生成器
- * 負責將模板和參數組合成最終的 prompt
+ * getTaskDetail prompt generator
+ * Responsible for combining templates and parameters into the final prompt
  */
 
 import {
@@ -11,7 +11,7 @@ import {
 import { Task } from "../../types/index.js";
 
 /**
- * getTaskDetail prompt 參數介面
+ * getTaskDetail prompt parameters interface
  */
 export interface GetTaskDetailPromptParams {
   taskId: string;
@@ -20,16 +20,16 @@ export interface GetTaskDetailPromptParams {
 }
 
 /**
- * 獲取 getTaskDetail 的完整 prompt
- * @param params prompt 參數
- * @returns 生成的 prompt
+ * Get the complete prompt for getTaskDetail
+ * @param params prompt parameters
+ * @returns generated prompt
  */
 export function getGetTaskDetailPrompt(
   params: GetTaskDetailPromptParams
 ): string {
   const { taskId, task, error } = params;
 
-  // 如果有錯誤，顯示錯誤訊息
+  // If there's an error, display error message
   if (error) {
     const errorTemplate = loadPromptFromTemplate("getTaskDetail/error.md");
     return generatePrompt(errorTemplate, {
@@ -37,7 +37,7 @@ export function getGetTaskDetailPrompt(
     });
   }
 
-  // 如果找不到任務，顯示找不到任務的訊息
+  // If task not found, display task not found message
   if (!task) {
     const notFoundTemplate = loadPromptFromTemplate(
       "getTaskDetail/notFound.md"
@@ -104,20 +104,20 @@ export function getGetTaskDetailPrompt(
     });
   }
 
-  let complatedSummaryPrompt = "";
+  let completedSummaryPrompt = "";
   if (task.completedAt) {
-    const complatedSummaryTemplate = loadPromptFromTemplate(
+    const completedSummaryTemplate = loadPromptFromTemplate(
       "getTaskDetail/complatedSummary.md"
     );
-    complatedSummaryPrompt = generatePrompt(complatedSummaryTemplate, {
-      completedTime: new Date(task.completedAt).toLocaleString("zh-TW"),
-      summary: task.summary || "*無完成摘要*",
+    completedSummaryPrompt = generatePrompt(completedSummaryTemplate, {
+      completedTime: new Date(task.completedAt).toLocaleString("en-US"),
+      summary: task.summary || "*No completion summary*",
     });
   }
 
   const indexTemplate = loadPromptFromTemplate("getTaskDetail/index.md");
 
-  // 開始構建基本 prompt
+  // Start building the basic prompt
   let prompt = generatePrompt(indexTemplate, {
     name: task.name,
     id: task.id,
@@ -128,11 +128,11 @@ export function getGetTaskDetailPrompt(
     implementationGuideTemplate: implementationGuidePrompt,
     verificationCriteriaTemplate: verificationCriteriaPrompt,
     relatedFilesTemplate: relatedFilesPrompt,
-    createdTime: new Date(task.createdAt).toLocaleString("zh-TW"),
-    updatedTime: new Date(task.updatedAt).toLocaleString("zh-TW"),
-    complatedSummaryTemplate: complatedSummaryPrompt,
+    createdTime: new Date(task.createdAt).toLocaleString("en-US"),
+    updatedTime: new Date(task.updatedAt).toLocaleString("en-US"),
+    complatedSummaryTemplate: completedSummaryPrompt,
   });
 
-  // 載入可能的自定義 prompt
+  // Load possible custom prompt
   return loadPrompt(prompt, "GET_TASK_DETAIL");
 }
